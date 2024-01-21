@@ -107,8 +107,6 @@ public class MainWindowController implements Initializable {
         }).start();
 	}
 	
-	// TODO
-	// fix this buggy mess, needs to actually stop broadcasting messages
 	public void stopServer() {
 		
 		// is the server already closed?
