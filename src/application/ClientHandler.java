@@ -19,6 +19,8 @@ public class ClientHandler implements Runnable {
     private BufferedReader inputStream;
     private MainWindowController mainWindowController;
     
+    private String nickname;
+    
     public final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
     
     public ClientHandler(Socket clientSocket, MainWindowController mainWindowController) {
@@ -39,8 +41,7 @@ public class ClientHandler implements Runnable {
 		
 		String clientInput;
         String[] message;
-        String nickname;
-		
+       
 		try {
 			
 			// get user name
@@ -50,6 +51,14 @@ public class ClientHandler implements Runnable {
 			message = clientInput.split(Pattern.quote(">8^("), 2);
 			nickname = message[1];
 			
+			if (mainWindowController.usernames.contains(nickname)) {
+				sendMessage("99>8^(Username already in use");
+				throw new Exception();
+			}
+			else {
+				sendMessage("100>8^(OK");
+				mainWindowController.usernames.add(nickname);
+			}
 			
 			// tell others a new user just joined
 			String time = timeFormat.format(new Timestamp(System.currentTimeMillis()));
@@ -112,6 +121,7 @@ public class ClientHandler implements Runnable {
 	public void closeEverything()
 	{
 		try {
+			mainWindowController.usernames.remove(nickname);
 			
 			// socket closes the streams as well
 			clientSocket.close();

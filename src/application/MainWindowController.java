@@ -35,7 +35,7 @@ public class MainWindowController implements Initializable {
 	private static final int PORT = 9999;
     
 	public ArrayList<ClientHandler> clients;
-    
+    public ArrayList<String> usernames;
     
 	public MainWindowController() {
 		this.clients = new ArrayList<ClientHandler>();
@@ -66,6 +66,8 @@ public class MainWindowController implements Initializable {
             infoTextFlow.getChildren().add(t1);
             return;
 		}
+		
+		usernames = new ArrayList<String>();
 		
         new Thread(() -> {
         	try {
