@@ -22,13 +22,15 @@ public class ClientHandler implements Runnable {
         this.clientSocket = clientSocket;
         try {
             this.outputStream = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
-        } catch (IOException e) {
+        } 
+        catch (IOException e) {
             e.printStackTrace();
         }
     }
     
 	@Override
 	public void run() {
+		
 		// TODO Auto-generated method stub
 		try {
 			inputStream = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -38,12 +40,12 @@ public class ClientHandler implements Runnable {
                 
                 mainWindowController.addMessage(message);
                 
-
                 // Broadcast the message to all clients
-                mainWindowController.broadcast(message, this);
+                mainWindowController.broadcast(message);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } 
+		catch (IOException e) {
+            // ignore
         }
 	}
 	
@@ -55,15 +57,14 @@ public class ClientHandler implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
     }
 	
 	public void closeEverything()
 	{
 		try {
+			
+			// socket closes the streams as well
 			clientSocket.close();
-			outputStream.close();
-			inputStream.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
