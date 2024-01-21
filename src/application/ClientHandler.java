@@ -50,20 +50,26 @@ public class ClientHandler implements Runnable {
 			message = clientInput.split(Pattern.quote(">8^("), 2);
 			nickname = message[1];
 			
+			
+			// tell others a new user just joined
+			String time = timeFormat.format(new Timestamp(System.currentTimeMillis()));
+			mainWindowController.broadcast(String.format("5>8^(%s>8^(%s", time, nickname));
+			mainWindowController.addMessage(String.format("[%s] (%s) joined the chat!", time, nickname));
+			
 			// process next messages
             while (!clientSocket.isClosed()) {
                 
             	clientInput = inputStream.readLine();
                 message = clientInput.split(Pattern.quote(">8^("), 3);
                 
-                String time = timeFormat.format(new Timestamp(System.currentTimeMillis()));
+                time = timeFormat.format(new Timestamp(System.currentTimeMillis()));
                 
                 switch (Integer.parseInt(message[0])) {
                 
                 // broadcast message
 				case 1:	
 					mainWindowController.broadcast(String.format("0>8^(%s>8^(%s>8^(%s", time, nickname, message[1]));
-					mainWindowController.addMessage(String.format("0>8^(%s>8^(%s>8^(%s", time, nickname, message[1]));
+					mainWindowController.addMessage(String.format("[%s] (%s) %s", time, nickname, message[1]));
 					break;
 					
 				// user wants to change nickname
@@ -78,8 +84,8 @@ public class ClientHandler implements Runnable {
 					
 				// user quits
 				case 4:
-					sendMessage("100>8^(Bye!");
 					mainWindowController.broadcast(String.format("6>8^(%s>8^(%s", time, nickname));
+					mainWindowController.addMessage(String.format("[%s] (%s) just quit", time, nickname));
 					closeEverything();
 					break;
 					

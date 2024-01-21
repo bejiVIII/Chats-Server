@@ -71,7 +71,6 @@ public class MainWindowController implements Initializable {
         	try {
 	            serverSocket = new ServerSocket(PORT);
 	            
-	            System.out.println("is socket closed: " + serverSocket.isClosed());
 	            Platform.runLater(new Runnable(){
 
 					@Override
@@ -119,7 +118,7 @@ public class MainWindowController implements Initializable {
 		try {
 			// TODO
             // tell others that the server is closed
-            broadcast("SERVER: closed.");
+            broadcast("4>8^(RIGHT NOW");
 			
 	        // close all connections
 			for (ClientHandler client : clients) {
