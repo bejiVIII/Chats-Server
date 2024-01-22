@@ -1,11 +1,9 @@
 package application;
 
-import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.application.Platform;
@@ -32,17 +30,20 @@ public class MainWindowController implements Initializable {
 	@FXML
 	private Button closeServerButton;
 		
-	private ServerSocket serverSocket;
-	private Socket clientSocket;
+	private ServerSocket serverSocket = null;
 	
-	private ClientHandler clientHandler;
 	private static final int PORT = 9999;
-    public static List<ClientHandler> clients = new ArrayList<>();
     
+	public ArrayList<ClientHandler> clients;
+    public ArrayList<String> usernames;
     
+	public MainWindowController() {
+		this.clients = new ArrayList<ClientHandler>();
+	}
+	
+	// does this run before or after the constructor?
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		
 		
 		infoTextFlow.heightProperty().addListener(new ChangeListener<Number>() {
 
@@ -56,15 +57,22 @@ public class MainWindowController implements Initializable {
 		
 	}
 	
-	public void startServer()
-	{
+	// thread that accepts new client connections, and makes threads for them
+	public void startServer() {
+		
+		// is server already open?
+		if (serverSocket != null) {
+			Text t1 = new Text("Server is already open.\n");
+            infoTextFlow.getChildren().add(t1);
+            return;
+		}
+		
+		usernames = new ArrayList<String>();
+		
         new Thread(() -> {
         	try {
 	            serverSocket = new ServerSocket(PORT);
-	            //textToAppend.add("Server is running on port " + PORT + "\n");
-	            //System.out.println("Server is running on port " + PORT);
 	            
-	            System.out.println("is socket closed: " + serverSocket.isClosed());
 	            Platform.runLater(new Runnable(){
 
 					@Override
@@ -72,11 +80,14 @@ public class MainWindowController implements Initializable {
 						Text t2 = new Text("Server is running on port " + PORT + "\n");
 			            infoTextFlow.getChildren().add(t2);
 					}
-	            	});
-	            while (true) { //TODO: nullpointerexception if "clientSocket.isClosed()" is used...
-	                clientSocket = serverSocket.accept();
-	                //can't modify fx ui elements on another thread....
-	                Platform.runLater(new Runnable(){
+            	});
+	            
+	            while (serverSocket != null) {
+	            	
+	                Socket clientSocket = serverSocket.accept();
+	                
+	                // log new connection
+	                Platform.runLater(new Runnable() {
 
 						@Override
 						public void run() {
@@ -86,47 +97,45 @@ public class MainWindowController implements Initializable {
 	                });
 		           
 	
-	                clientHandler = new ClientHandler(clientSocket, this);
-	                clients.add(clientHandler);
-	
-	                new Thread(clientHandler).start();
+	                ClientHandler handler = new ClientHandler(clientSocket, this);
+	                clients.add(handler);
+	                new Thread(handler).start();
 	            }
-        	} catch (IOException e) {
-        		//e.printStackTrace();
-        		Platform.runLater(new Runnable(){
-
-					@Override
-					public void run() {
-						Text t2 = new Text(e.getMessage() + "\n");
-			            infoTextFlow.getChildren().add(t2);
-					}
-	            	});
+        	}
+        	catch (Exception e) {
+        		// ignore
         	}
         }).start();
-
 	}
 	
-	public void stopServer()
-	{
-		try {
-			clientSocket.close();
-			Text t1 = new Text("Client socket closed.\n");
+	public void stopServer() {
+		
+		// is the server already closed?
+		if (serverSocket == null) {
+			Text t1 = new Text("Server has not yet started.\n");
             infoTextFlow.getChildren().add(t1);
-            
-			serverSocket.close();
-			Text t2 = new Text("Server socket closed.\n");
-            infoTextFlow.getChildren().add(t2);
-            
-            broadcast("SERVER: closed.", clientHandler);
-		} catch (Exception e) {
+            return;
+		}
+		
+		try {
+			// TODO
+            // tell others that the server is closed
+            broadcast("4>8^(RIGHT NOW");
 			
-			if(clientSocket == null)
-			{
-				Text t1 = new Text("Server was not started.\n");
-	            infoTextFlow.getChildren().add(t1);
-	            return;
+	        // close all connections
+			for (ClientHandler client : clients) {
+				client.closeEverything();
 			}
-			//e.printStackTrace();
+            
+			// stop accepting new clients
+			serverSocket.close();
+			serverSocket = null;
+			
+			Text t2 = new Text("Server closed.\n");
+            infoTextFlow.getChildren().add(t2);
+		}
+		catch (Exception e) {
+			
 			Platform.runLater(new Runnable(){
 
 				@Override
@@ -134,24 +143,26 @@ public class MainWindowController implements Initializable {
 					Text t2 = new Text(e.getMessage() + "\n");
 		            infoTextFlow.getChildren().add(t2);
 				}
-            	});
+        	});
 		}
 	}
 	
-	public void broadcast(String message, ClientHandler sender) {
+	public void broadcast(String message) {
+		
         for (ClientHandler client : clients) {
-            if (client != sender) {
-                client.sendMessage(message);
-            }
+            client.sendMessage(message);
         }
-        
     }
 	
-	public void addMessage(String message)
-	{
+	// TODO
+	// make it so that when the X button for closing the window is pressed
+	// run the stop server function first for clean exit
+	
+	
+	// TODO
+	// add logging functionality
+	public void addMessage(String message) {
 		Text text = new Text(message + "\n");
         Platform.runLater(() -> infoTextFlow.getChildren().add(text));
-
 	}
-	
 }

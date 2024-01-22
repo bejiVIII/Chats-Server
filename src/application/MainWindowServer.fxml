@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.TextFlow?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="581.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.MainWindowController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="581.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.MainWindowController">
    <children>
       <ScrollPane fx:id="infoScrollpane">
         <content>
